@@ -1,0 +1,2047 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AB Genesis Simulator</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            lab: {
+              50: '#f8fafc',
+              100: '#f1f5f9',
+              200: '#e2e8f0',
+              300: '#cbd5e1',
+              400: '#94a3b8',
+              500: '#64748b',
+              600: '#475569',
+              700: '#334155',
+              800: '#1e293b',
+              900: '#0f172a',
+              950: '#020617',
+              accent: '#4f46e5', // Royal Indigo
+              psi: '#0284c7',    // Clean Ocean Blue
+              pin: '#db2777',    // Magenta Flow
+              pi: '#d97706',     // Bronze Golden
+              vortex: '#059669', // Emerald
+              matter: '#4f46e5'  // Deep Indigo
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .tech-font {
+      font-family: 'Share Tech Mono', monospace;
+    }
+    /* Simple, minimal scrollbars */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(100, 116, 139, 0.2);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(100, 116, 139, 0.4);
+    }
+    /* Clean Range Slider Styling (No extreme glows) */
+    input[type="range"] {
+      -webkit-appearance: none;
+      background: transparent;
+    }
+    input[type="range"]::-webkit-slider-runnable-track {
+      background: rgba(100, 116, 139, 0.1);
+      border-radius: 3px;
+      height: 5px;
+    }
+    .dark input[type="range"]::-webkit-slider-runnable-track {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 12px;
+      width: 12px;
+      border-radius: 50%;
+      background: #4f46e5;
+      cursor: pointer;
+      margin-top: -3.5px;
+      transition: background 0.15s ease;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover {
+      background: #4338ca;
+    }
+    /* Smooth fullscreen transition styling */
+    #canvas-container.fullscreen-active {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 50;
+      border-radius: 0;
+    }
+  </style>
+</head>
+<body class="bg-lab-50 text-lab-800 dark:bg-lab-950 dark:text-lab-100 min-h-screen flex flex-col transition-colors duration-200">
+
+  <!-- Header Section -->
+  <header class="border-b border-lab-200 dark:border-lab-800 bg-white/90 dark:bg-lab-900/90 backdrop-blur px-6 py-3.5 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+      <!-- Title & Subtitle -->
+      <div class="text-center md:text-left">
+        <div class="flex items-center justify-center md:justify-start gap-2.5">
+          <span class="text-[10px] bg-lab-200 dark:bg-lab-800 text-lab-700 dark:text-lab-300 px-2 py-0.5 rounded font-bold uppercase tracking-wider">MATHEM-LAB v2.9.1</span>
+          <h1 class="text-xl md:text-2xl font-bold tracking-tight text-lab-900 dark:text-white tech-font">AB GENESIS SIMULATOR</h1>
+        </div>
+        <p class="text-xs text-lab-500 dark:text-lab-400 mt-0.5 uppercase tracking-wider">
+          <span class="text-lab-pin font-bold">P_in</span>–<span class="text-lab-psi font-bold">Ψ</span>–<span class="text-lab-pi font-bold">Π</span> <span id="lbl-subtitle">Conceptual Matter Formation Lab</span>
+        </p>
+        
+        <!-- Researcher Metadata -->
+        <div class="text-[10px] sm:text-xs text-lab-600 dark:text-lab-400 mt-1.5 flex flex-wrap justify-center md:justify-start items-center gap-x-2.5 gap-y-1">
+          <span class="font-bold text-lab-accent dark:text-indigo-400">Phan Thành Trung</span>
+          <span class="opacity-40 text-[9px]">•</span>
+          <span>Independent Researcher, Vietnam</span>
+          <span class="opacity-40 text-[9px]">•</span>
+          <a href="https://orcid.org/0009-0000-7520-6781" target="_blank" rel="noopener noreferrer" class="hover:text-lab-accent dark:hover:text-indigo-400 transition-colors inline-flex items-center gap-1 underline decoration-dotted">
+            <svg class="w-3 h-3 text-[#A6CE39] fill-current" viewBox="0 0 24 24">
+              <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zM7.361 17.656H5.698V6.82h1.663v10.836zm-.831-12.023c-.566 0-1.023-.46-1.023-1.026 0-.566.457-1.023 1.023-1.023.568 0 1.025.457 1.025 1.023a1.025 1.025 0 0 1-1.025 1.026zm11.782 12.023h-3.136c-1.393 0-2.316-.763-2.614-1.636h-.06v1.636H10.13V6.82h3.292c2.593 0 4.148 1.636 4.148 3.864 0 1.954-1.22 3.243-2.923 3.664.887.411 1.455 1.258 1.455 2.502v.806zm-1.844-.806v-.55c0-1.21-.861-1.884-2.146-1.884h-1.663v4.29h1.663c1.392 0 2.146-.62 2.146-1.856zm-.483-6.52c0-1.282-.942-1.928-2.378-1.928h-1.97v3.834h1.97c1.436 0 2.378-.62 2.378-1.906z"/>
+            </svg>
+            <span>ORCID: 0009-0000-7520-6781</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Control Header Actions -->
+      <div class="flex flex-wrap items-center gap-2.5">
+        <!-- Language Switcher -->
+        <button id="btn-lang" class="px-3 py-1.5 text-xs font-bold rounded border border-lab-200 dark:border-lab-700 bg-white dark:bg-lab-800 hover:bg-lab-100 dark:hover:bg-lab-700 transition text-lab-700 dark:text-lab-200 uppercase tracking-wider flex items-center gap-1.5">
+          🌐 <span>VN</span>
+        </button>
+        <!-- Dark/Light Mode Switcher -->
+        <button id="btn-theme" class="p-2 text-xs font-bold rounded border border-lab-200 dark:border-lab-700 bg-white dark:bg-lab-800 hover:bg-lab-100 dark:hover:bg-lab-700 transition text-lab-700 dark:text-lab-200">
+          ☀️
+        </button>
+        <!-- Info Helper -->
+        <button id="btn-info" class="px-3 py-1.5 text-xs font-bold rounded border border-lab-300 dark:border-lab-700 bg-lab-100 dark:bg-lab-800 hover:bg-lab-200 dark:hover:bg-lab-700 text-lab-800 dark:text-lab-200 transition flex items-center gap-1.5">
+          ℹ️ <span id="lbl-guide-btn">Guide</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 relative">
+    
+    <!-- Left Column: Controls (4 cols on lg) -->
+    <section id="sidebar-controls" class="lg:col-span-4 flex flex-col gap-5 transition-all duration-300">
+      
+      <!-- Simulation Status Badge & Controller -->
+      <div class="bg-white dark:bg-lab-900 p-5 rounded-xl border border-lab-200 dark:border-lab-800 shadow-sm">
+        <div class="flex justify-between items-center mb-4">
+          <span class="text-xs uppercase tracking-wider text-lab-500" id="lbl-sys-state">SYSTEM STATE:</span>
+          <!-- Dynamic Badge -->
+          <span id="badge-state" class="px-2.5 py-0.5 rounded text-xs font-semibold tracking-wide transition-colors duration-200 bg-lab-100 text-lab-700 dark:bg-lab-800 dark:text-lab-300 border border-lab-200 dark:border-lab-700">
+            Potential Field Only
+          </span>
+        </div>
+        
+        <!-- Score Bar -->
+        <div class="border-t border-lab-100 dark:border-lab-800 pt-3 mb-4 flex justify-between items-center">
+          <span class="text-xs text-lab-500 tracking-wider font-medium" id="lbl-genesis-score">Genesis Score:</span>
+          <span id="txt-score" class="text-lg font-bold tech-font text-lab-accent dark:text-indigo-400">0</span>
+        </div>
+
+        <!-- Simulation Speed / Status Indicators -->
+        <div class="grid grid-cols-3 gap-2 text-center text-[10px] font-bold uppercase tracking-wider text-lab-500 mb-4">
+          <div class="bg-lab-50 dark:bg-lab-950 p-2 rounded border border-lab-200 dark:border-lab-800">
+            <div id="status-psi" class="text-lab-psi text-xs font-bold">ACTIVE</div>
+            <span class="text-[8px] opacity-75">Ψ FIELD</span>
+          </div>
+          <div class="bg-lab-50 dark:bg-lab-950 p-2 rounded border border-lab-200 dark:border-lab-800">
+            <div id="status-pin" class="text-lab-pin text-xs font-bold">STEADY</div>
+            <span class="text-[8px] opacity-75">P_IN FLUX</span>
+          </div>
+          <div class="bg-lab-50 dark:bg-lab-950 p-2 rounded border border-lab-200 dark:border-lab-800">
+            <div id="status-pi" class="text-lab-pi text-xs font-bold">BOUND</div>
+            <span class="text-[8px] opacity-75">Π BOUNDARY</span>
+          </div>
+        </div>
+
+        <!-- Primary Action Triggers -->
+        <div class="grid grid-cols-3 gap-2">
+          <button id="btn-start" class="py-2 rounded font-semibold text-xs bg-lab-accent hover:bg-indigo-700 active:bg-indigo-800 text-white transition tracking-wide flex items-center justify-center gap-1 shadow-sm">
+            <span>▶</span> <span id="lbl-start">START</span>
+          </button>
+          <button id="btn-pause" class="py-2 rounded font-semibold text-xs bg-lab-200 dark:bg-lab-800 hover:bg-lab-300 dark:hover:bg-lab-700 text-lab-700 dark:text-lab-300 transition tracking-wide flex items-center justify-center gap-1">
+            <span>⏸</span> <span id="lbl-pause">PAUSE</span>
+          </button>
+          <button id="btn-reset" class="py-2 rounded font-semibold text-xs bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 dark:bg-red-950/20 dark:hover:bg-red-900/30 dark:text-red-400 dark:border-red-900/30 transition tracking-wide flex items-center justify-center gap-1">
+            <span>🔄</span> <span id="lbl-reset">RESET</span>
+          </button>
+        </div>
+
+        <button id="btn-random" class="w-full mt-2 py-2 rounded font-semibold text-xs bg-lab-100 dark:bg-lab-800 hover:bg-lab-200 dark:hover:bg-lab-700 text-lab-700 dark:text-lab-200 border border-lab-200 dark:border-lab-700 transition tracking-wide">
+          🎲 <span id="lbl-random">RANDOM GENESIS</span>
+        </button>
+      </div>
+
+      <!-- Parameter Controls (Sliders) -->
+      <div class="bg-white dark:bg-lab-900 p-5 rounded-xl border border-lab-200 dark:border-lab-800 shadow-sm flex flex-col gap-4">
+        <h3 class="text-xs font-bold text-lab-600 dark:text-lab-300 uppercase tracking-widest border-b border-lab-100 dark:border-lab-850 pb-2 mb-1" id="lbl-param-header">Simulation Inputs</h3>
+
+        <!-- Galaxy Cores (Multiple Π Boundaries) -->
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-lab-accent dark:text-indigo-400 font-bold flex items-center gap-1">🌌 <span id="lbl-slide-cores">Galaxy Cores Π</span></span>
+            <span id="val-cores" class="font-bold tech-font">1</span>
+          </div>
+          <input type="range" id="slide-cores" min="1" max="5" step="1" value="1" class="w-full cursor-pointer">
+        </div>
+
+        <!-- Slide 1: Ψ Field Density -->
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-lab-psi font-bold"><span class="font-bold">Ψ</span> <span id="lbl-slide-density">Field Density</span></span>
+            <span id="val-density" class="font-bold tech-font">400</span>
+          </div>
+          <input type="range" id="slide-density" min="100" max="1000" step="50" value="400" class="w-full cursor-pointer">
+        </div>
+
+        <!-- Slide 2: P_in Intensity -->
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-lab-pin font-bold"><span class="font-bold">P_in</span> <span id="lbl-slide-pin">Actualization</span></span>
+            <span id="val-pin" class="font-bold tech-font">0.50</span>
+          </div>
+          <input type="range" id="slide-pin" min="0.0" max="1.0" step="0.05" value="0.50" class="w-full cursor-pointer">
+        </div>
+
+        <!-- Slide 3: Π Closure Strength -->
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-lab-pi font-bold"><span class="font-bold">Π</span> <span id="lbl-slide-pi">Closure Strength</span></span>
+            <span id="val-pi" class="font-bold tech-font">0.40</span>
+          </div>
+          <input type="range" id="slide-pi" min="0.0" max="1.0" step="0.05" value="0.40" class="w-full cursor-pointer">
+        </div>
+
+        <!-- Slide 4: A/B Interference Noise -->
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-lab-500 dark:text-lab-400 font-bold" id="lbl-slide-noise">A/B Interference Noise</span>
+            <span id="val-noise" class="font-bold tech-font">0.30</span>
+          </div>
+          <input type="range" id="slide-noise" min="0.0" max="1.0" step="0.05" value="0.30" class="w-full cursor-pointer">
+        </div>
+
+        <!-- Slide 5: Twist Coefficient -->
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-lab-accent dark:text-indigo-400 font-bold" id="lbl-slide-twist">Twist Coefficient</span>
+            <span id="val-twist" class="font-bold tech-font">0.50</span>
+          </div>
+          <input type="range" id="slide-twist" min="0.0" max="2.0" step="0.1" value="0.50" class="w-full cursor-pointer">
+        </div>
+
+        <!-- Slide 6: Condensation Threshold -->
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-lab-vortex font-bold" id="lbl-slide-conden">Condensation Threshold</span>
+            <span id="val-conden" class="font-bold tech-font">0.60</span>
+          </div>
+          <input type="range" id="slide-conden" min="0.2" max="1.0" step="0.05" value="0.60" class="w-full cursor-pointer">
+        </div>
+
+        <!-- Slide 7: Entropy Leakage -->
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-red-500 font-bold" id="lbl-slide-entropy">Entropy Leakage</span>
+            <span id="val-entropy" class="font-bold tech-font">0.20</span>
+          </div>
+          <input type="range" id="slide-entropy" min="0.0" max="1.0" step="0.05" value="0.20" class="w-full cursor-pointer">
+        </div>
+
+        <!-- Slide 8: Speed -->
+        <div>
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-lab-500 dark:text-lab-400 font-bold" id="lbl-slide-speed">Simulation Speed</span>
+            <span id="val-speed" class="font-bold tech-font">1.0x</span>
+          </div>
+          <input type="range" id="slide-speed" min="0.1" max="2.0" step="0.1" value="1.0" class="w-full cursor-pointer">
+        </div>
+      </div>
+    </section>
+
+    <!-- Center Column: Simulator Canvas & Telemetry (8 cols on lg) -->
+    <section id="canvas-column" class="lg:col-span-8 flex flex-col gap-6">
+      
+      <!-- Main Visualizer Canvas Container -->
+      <div id="canvas-container" class="relative bg-white dark:bg-lab-900 border border-lab-200 dark:border-lab-800 rounded-xl overflow-hidden aspect-video flex flex-col shadow-sm transition-all duration-300">
+        <!-- Canvas Toolbar Overlay (Top) -->
+        <div class="absolute top-0 inset-x-0 bg-gradient-to-b from-lab-100/90 dark:from-lab-950/90 to-transparent p-4 flex justify-between items-center z-10 pointer-events-none">
+          <div class="flex items-center gap-2">
+            <div class="h-1.5 w-1.5 rounded-full bg-lab-accent animate-pulse"></div>
+            <span class="text-[10px] tracking-widest text-lab-500 dark:text-lab-400 uppercase font-bold" id="lbl-live-feed">SIMULATOR FEED // CONCEPTUAL SPACE</span>
+          </div>
+          <div class="flex gap-2 pointer-events-auto">
+            <!-- Fullscreen presentation trigger -->
+            <button id="btn-fullscreen" class="bg-indigo-600 hover:bg-indigo-500 text-[10px] text-white px-2.5 py-1 rounded font-semibold transition flex items-center gap-1 shadow-sm">
+              📺 <span id="lbl-btn-presentation">Presentation</span>
+            </button>
+            <button id="btn-snapshot" class="bg-white/80 dark:bg-lab-800/80 hover:bg-white dark:hover:bg-lab-700 border border-lab-200 dark:border-lab-700 text-[10px] text-lab-700 dark:text-lab-200 px-2.5 py-1 rounded font-semibold transition flex items-center gap-1 shadow-sm">
+              📸 <span id="lbl-btn-snapshot">Snapshot</span>
+            </button>
+            <button id="btn-report" class="bg-lab-accent hover:bg-indigo-700 text-[10px] text-white px-2.5 py-1 rounded font-semibold transition flex items-center gap-1 shadow-sm">
+              📝 <span id="lbl-btn-report">Export Report</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Floating Collapsible Control Deck inside Fullscreen Presentation Mode -->
+        <div id="fullscreen-overlay" class="absolute top-16 right-4 max-w-sm w-80 bg-white/95 dark:bg-lab-900/95 backdrop-blur-md p-4 rounded-xl border border-lab-200 dark:border-lab-800 shadow-2xl z-30 hidden pointer-events-auto flex flex-col gap-3 max-h-[80vh] overflow-y-auto">
+          <div class="flex justify-between items-center border-b border-lab-100 dark:border-lab-800 pb-2">
+            <span class="text-xs font-bold text-lab-accent dark:text-indigo-400 uppercase tracking-widest">COSMIC CONTROLLER</span>
+            <button id="btn-toggle-overlay-panel" class="text-xs text-lab-400 hover:text-lab-600 dark:hover:text-lab-200">✕ Collapse</button>
+          </div>
+          <div id="overlay-sliders-target" class="flex flex-col gap-3.5">
+            <!-- Appended dynamically via JS during Presentation Toggle -->
+          </div>
+        </div>
+
+        <!-- Primary Canvas -->
+        <canvas id="genesis-canvas" class="w-full h-full cursor-crosshair block bg-lab-50 dark:bg-lab-950 transition-colors duration-200"></canvas>
+
+        <!-- FLOATING ON-SCREEN TELEMETRY HUD ALERTS (COMPACTED & CONTAINED v2.9.1) -->
+        <div class="absolute bottom-14 left-4 z-20 pointer-events-auto max-w-xs sm:max-w-sm">
+          <div id="canvas-alerts-container" class="max-h-24 sm:max-h-28 overflow-y-auto flex flex-col gap-1 pr-1 bg-lab-900/70 dark:bg-lab-950/70 backdrop-blur-md p-1.5 rounded-lg border border-lab-200/20 dark:border-lab-800/30 scroll-smooth">
+            <!-- Dynamic alerts roll here cleanly -->
+          </div>
+        </div>
+
+        <!-- Canvas Legend Overlay (Bottom) -->
+        <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-lab-50/90 dark:from-lab-950/90 to-transparent p-3.5 flex flex-wrap justify-center gap-4.5 z-10 pointer-events-none text-[9px] font-semibold uppercase tracking-wider">
+          <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-lab-psi"></div><span class="text-lab-psi">Ψ Particles</span></div>
+          <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-lab-pin"></div><span class="text-lab-pin">P_in Injection</span></div>
+          <div class="flex items-center gap-1.5"><div class="w-2 h-2 border border-dashed border-lab-pi"></div><span class="text-lab-pi">Π Barrier</span></div>
+          <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-sm bg-lab-vortex"></div><span class="text-lab-vortex">Electron Vortex</span></div>
+          <div class="flex items-center gap-1.5"><div class="w-2 h-2 rounded-full bg-lab-matter"></div><span class="text-lab-matter">Matter Cluster</span></div>
+        </div>
+      </div>
+
+      <!-- Live Telemetry Monitor & Event Log Group -->
+      <div id="telemetry-panel" class="grid grid-cols-1 md:grid-cols-12 gap-6">
+        
+        <!-- NEW CO-GENESIS TELEMETRY & QUANTUM REGISTRY TABLE (Left 7 Columns) -->
+        <div class="md:col-span-7 bg-white dark:bg-lab-900 p-4 rounded-xl border border-lab-200 dark:border-lab-800 shadow-sm flex flex-col justify-between">
+          <div>
+            <h4 class="text-xs font-bold text-lab-700 dark:text-lab-300 uppercase tracking-widest border-b border-lab-100 dark:border-lab-850 pb-2 flex items-center justify-between mb-2">
+              <span id="lbl-telemetry">Quantum Entity Registry</span>
+              <span class="text-[8px] bg-lab-100 dark:bg-lab-800 px-1.5 py-0.5 rounded text-lab-600 dark:text-lab-400 font-bold uppercase tracking-wide">RMS REALTIME</span>
+            </h4>
+            
+            <div class="divide-y divide-lab-100 dark:divide-lab-850 text-xs">
+              <!-- Row 1: Ψ Fields -->
+              <div class="py-1.5 flex justify-between items-center">
+                <span class="flex items-center gap-2 text-lab-600 dark:text-lab-300">
+                  <span class="w-2 h-2 rounded-full bg-lab-psi inline-block"></span>
+                  <span class="font-bold">Ψ</span>
+                  <span id="lbl-reg-psi">Possibility Fields</span>
+                </span>
+                <span id="metric-psi" class="font-bold tech-font text-lab-psi">0.00%</span>
+              </div>
+              
+              <!-- Row 2: Condensed States -->
+              <div class="py-1.5 flex justify-between items-center">
+                <span class="flex items-center gap-2 text-lab-600 dark:text-lab-300">
+                  <span class="w-2 h-2 rounded-sm bg-lab-vortex inline-block"></span>
+                  <span class="font-bold">C</span>
+                  <span id="lbl-reg-condensed">Condensed Cores</span>
+                </span>
+                <span id="metric-condensed-count" class="font-bold tech-font text-lab-vortex">0</span>
+              </div>
+              
+              <!-- Row 3: Active Vortices with Tags directory -->
+              <div class="py-1.5 flex justify-between items-start gap-4">
+                <span class="flex items-center gap-2 text-lab-600 dark:text-lab-300 flex-shrink-0">
+                  <span class="w-2.5 h-2.5 rounded-full border border-lab-vortex inline-block animate-spin" style="animation-duration: 3s;"></span>
+                  <span class="font-bold">V</span>
+                  <span id="lbl-reg-vortices">Active Vortices</span>
+                </span>
+                <div class="text-right flex flex-col items-end">
+                  <span id="metric-vortices-count" class="font-bold tech-font text-emerald-500">0</span>
+                  <!-- Active IDs Container -->
+                  <div id="metric-vortices-list" class="text-[9px] text-lab-400 dark:text-lab-500 font-mono mt-0.5 tracking-wider truncate max-w-[200px]" title="Active Vortex Keys">
+                    None
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Row 4: Galaxy Cores & Matter status -->
+              <div class="py-1.5 flex justify-between items-center">
+                <span class="flex items-center gap-2 text-lab-600 dark:text-lab-300">
+                  <span class="w-2 h-2 rounded-full bg-lab-matter inline-block animate-pulse"></span>
+                  <span class="font-bold">✦</span>
+                  <span id="lbl-reg-matter">Galaxy Nuclei & Matter</span>
+                </span>
+                <span id="metric-matter-status" class="font-bold tech-font text-lab-matter">None</span>
+              </div>
+
+              <!-- Row 5: Entropy phi hội tụ -->
+              <div class="py-1.5 flex justify-between items-center">
+                <span class="flex items-center gap-2 text-lab-600 dark:text-lab-300">
+                  <span class="w-2 h-2 rounded-full bg-red-500 inline-block"></span>
+                  <span class="font-bold">▲</span>
+                  <span id="lbl-reg-entropy">Non-Converging Entropy</span>
+                </span>
+                <span id="metric-entropy-percent" class="font-bold tech-font text-red-500">0.00%</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="w-full bg-lab-200 dark:bg-lab-800 rounded-full h-1 mt-3 overflow-hidden">
+            <div id="bar-progress" class="bg-lab-accent h-1 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- NEW SUPER COMPACT H-44 EVENT LOG TERMINAL (Right 5 Columns) -->
+        <div class="md:col-span-5 bg-white dark:bg-lab-900 p-4 rounded-xl border border-lab-200 dark:border-lab-800 shadow-sm flex flex-col h-[216px]">
+          <h4 class="text-xs font-bold text-lab-700 dark:text-lab-300 uppercase tracking-widest border-b border-lab-100 dark:border-lab-850 pb-2 flex justify-between items-center mb-2">
+            <span id="lbl-event-log">Genesis Quantum Log</span>
+            <button id="btn-clear-log" class="text-[9px] text-lab-400 hover:text-lab-600 dark:hover:text-lab-200 font-bold">CLEAR</button>
+          </h4>
+          <!-- Tight scroll box that never expands height -->
+          <div id="log-terminal" class="flex-grow overflow-y-auto text-[10px] font-mono p-2.5 bg-lab-50 dark:bg-lab-950 rounded-lg border border-lab-200 dark:border-lab-850 text-lab-700 dark:text-lab-300 flex flex-col gap-1 h-36">
+            <!-- Dynamic Logs -->
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Interactive Instruction / Guide Modal (Bilingual & Compacted v2.9) -->
+  <div id="modal-guide" class="fixed inset-0 bg-lab-950/60 dark:bg-lab-950/85 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden transition-opacity duration-200 opacity-0">
+    <div class="bg-white dark:bg-lab-900 border border-lab-200 dark:border-lab-800 max-w-2xl w-full rounded-xl p-4 shadow-xl relative max-h-[90vh] flex flex-col gap-3">
+      <!-- Absolute Close Button -->
+      <button id="btn-close-guide" class="absolute top-4 right-4 text-lab-400 hover:text-lab-600 dark:hover:text-lab-200 text-sm">✕</button>
+      
+      <!-- Top Action and Sticky Header Row -->
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-lab-100 dark:border-lab-800 pb-2.5">
+        <h2 class="text-sm font-bold tech-font text-lab-accent dark:text-indigo-400 uppercase tracking-wide" id="lbl-guide-title">LABORATORY BLUEPRINT & GUIDE</h2>
+        <div class="flex items-center gap-2 pr-6">
+          <button id="btn-modal-lang" class="text-[9px] bg-lab-100 dark:bg-lab-800 border border-lab-200 dark:border-lab-700 px-2 py-1 rounded font-bold text-lab-600 dark:text-lab-300 hover:bg-lab-200 dark:hover:bg-lab-700">
+            SWITCH TO VIETNAMESE
+          </button>
+          <!-- Prominent Top Dismiss Button -->
+          <button id="btn-guide-dismiss" class="px-3 py-1 bg-lab-accent hover:bg-indigo-700 text-white font-bold rounded text-[9px] tracking-wider transition uppercase shadow-sm">
+            Understand & Proceed
+          </button>
+        </div>
+      </div>
+      
+      <!-- Highly Compacted Bilingual Body Container -->
+      <div class="text-[11px] text-lab-600 dark:text-lab-300 leading-relaxed space-y-2.5" id="lbl-guide-body">
+        <!-- Loaded dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Export Report Modal -->
+  <div id="modal-report" class="fixed inset-0 bg-lab-950/60 dark:bg-lab-950/85 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden transition-opacity duration-200 opacity-0">
+    <div class="bg-white dark:bg-lab-900 border border-lab-200 dark:border-lab-800 max-w-3xl w-full rounded-xl p-6 shadow-xl relative max-h-[85vh] flex flex-col">
+      <button id="btn-close-report" class="absolute top-4 right-4 text-lab-400 hover:text-lab-600 dark:hover:text-lab-200 text-sm">✕</button>
+      <h2 class="text-lg font-bold tech-font text-lab-accent dark:text-indigo-400 uppercase tracking-wide mb-4 border-b border-lab-100 dark:border-lab-800 pb-2" id="lbl-report-title">GENERATED MATERO-GENESIS REPORT</h2>
+      
+      <!-- Report Body Preview -->
+      <div class="flex-grow overflow-y-auto bg-lab-50 dark:bg-lab-950 p-4 rounded-lg border border-lab-200 dark:border-lab-850 text-xs font-mono text-lab-700 dark:text-lab-300 whitespace-pre-wrap select-text selection:bg-indigo-500/10" id="report-text">
+        <!-- Dynamic markdown report loaded here -->
+      </div>
+      
+      <div class="grid grid-cols-2 gap-4 mt-6">
+        <button id="btn-copy-report" class="py-2.5 bg-lab-100 dark:bg-lab-800 hover:bg-lab-200 dark:hover:bg-lab-700 text-lab-800 dark:text-lab-200 font-bold rounded-lg tracking-wider transition uppercase text-[11px] flex items-center justify-center gap-2">
+          📋 <span id="lbl-btn-copy">Copy to Clipboard</span>
+        </button>
+        <button id="btn-download-report" class="py-2.5 bg-lab-accent hover:bg-indigo-700 text-white font-bold rounded-lg tracking-wider transition uppercase text-[11px] flex items-center justify-center gap-2 shadow-sm">
+          📥 <span id="lbl-btn-download">Download Markdown File</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="fixed bottom-6 right-6 px-4 py-2.5 bg-white dark:bg-lab-900 border border-lab-200 dark:border-lab-750 text-lab-700 dark:text-lab-300 rounded-lg text-xs font-bold tracking-wide transition-all duration-300 opacity-0 translate-y-4 shadow-lg z-50 pointer-events-none flex items-center gap-2">
+    <span class="text-lab-accent">●</span> <span id="toast-msg">Success!</span>
+  </div>
+
+  <!-- Scientific Disclaimer Footer -->
+  <footer class="border-t border-lab-250 dark:border-lab-850 bg-lab-100/50 dark:bg-lab-950/80 px-6 py-4 mt-auto">
+    <div class="max-w-7xl mx-auto text-center text-[10px] text-lab-500 leading-relaxed max-w-4xl">
+      <span id="lbl-footer-disclaimer">
+        “This simulator is a conceptual toy model inspired by topological field dynamics and Skyrmion-like structures. It does not constitute empirical proof of electron formation or Big Bang physics.”
+      </span>
+    </div>
+  </footer>
+
+  <!-- Simulation Logic & Translations -->
+  <script>
+    // -------------------------------------------------------------
+    // 1. Translations Dictionary (EN Default / VN Secondary)
+    // -------------------------------------------------------------
+    let currentLang = 'EN';
+    const translations = {
+      EN: {
+        subtitle: "Conceptual Matter Formation Lab (P_in–Ψ–Π)",
+        guideBtn: "Guide",
+        sysState: "System State:",
+        genesisScore: "Genesis Score (Emergence Index):",
+        start: "START",
+        pause: "PAUSE",
+        reset: "RESET",
+        random: "PRIMORDIAL GENESIS (RANDOM)",
+        paramHeader: "Simulation Inputs",
+        slideCores: "Galaxy Cores Π",
+        slideDensity: "Ψ Field Density",
+        slidePin: "P_in Intensity",
+        slidePi: "Π Closure Strength",
+        slideNoise: "A/B Interference Noise",
+        slideTwist: "Twist Coefficient",
+        slideConden: "Condensation Threshold",
+        slideEntropy: "Entropy Leakage",
+        slideSpeed: "Simulation Speed",
+        liveFeed: "SIMULATOR FEED // CONCEPTUAL SPACE",
+        btnSnapshot: "Snapshot",
+        btnReport: "Export Report",
+        btnPresentation: "Presentation",
+        telemetry: "Quantum Entity Registry",
+        regPsi: "Possibility Fields",
+        regCondensed: "Condensed Cores",
+        regVortices: "Active Vortices",
+        regMatter: "Galaxy Nuclei & Matter",
+        regEntropy: "Non-Converging Entropy",
+        eventLog: "Genesis Quantum Log",
+        btnDismissGuide: "Agree & Proceed",
+        guideTitle: "LABORATORY BLUEPRINT & GUIDE",
+        btnModalLang: "SWITCH TO VIETNAMESE",
+        guideBody: `
+          <p class="text-lab-accent dark:text-indigo-400 font-bold mb-1">AB Genesis Simulation Architecture:</p>
+          <p class="mb-2">Models unformed probability fields ($\\Psi$) inside ancient domains A/B focused by boundary closure ($\\Pi$) and energy actualization ($P_{in}$). This prompts topological twists condensing into electron-like stable structures.</p>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 bg-lab-100 dark:bg-lab-950 p-2.5 rounded border border-lab-200 dark:border-lab-800 text-[11px]">
+            <div>
+              <ul class="space-y-1">
+                <li><strong>🌌 Cores Π:</strong> Multi-core gravity wells.</li>
+                <li><strong>🌀 Ψ Field:</strong> Free raw wave states (Teal).</li>
+                <li><strong>⚡ Domains A & B:</strong> Side wave emitters.</li>
+              </ul>
+            </div>
+            <div>
+              <ul class="space-y-1">
+                <li><strong>☄️ P_in Flow:</strong> Inbound actualization (Magenta).</li>
+                <li><strong>🔒 Π Boundary:</strong> Gold ring containment.</li>
+                <li><strong>🔄 Twist:</strong> Topo twisting Emerald condensation.</li>
+              </ul>
+            </div>
+          </div>
+          <p class="text-lab-500 italic mt-2 text-[10px]">Tip: Click/drag directly on canvas to stir potential waves! Or adjust sliders on the left card to mold galaxies.</p>
+        `,
+        reportTitle: "MATERO-GENESIS EXPERIMENT REPORT",
+        btnCopy: "Copy to Clipboard",
+        btnDownload: "Download Markdown File (.md)",
+        footerDisclaimer: "“This simulator is a conceptual toy model inspired by topological field dynamics and Skyrmion-like structures. It does not constitute empirical proof of electron formation or Big Bang physics.”",
+        toastCopied: "Report copied to clipboard!",
+        toastDownload: "Downloading markdown report...",
+        toastSnapshot: "Simulation snapshot generated and downloaded!"
+      },
+      VN: {
+        subtitle: "Phòng thí nghiệm Kiến tạo Vật chất Khái niệm (P_in–Ψ–Π)",
+        guideBtn: "Hướng dẫn",
+        sysState: "Trạng thái hệ thống:",
+        genesisScore: "Chỉ số kiến tạo (Genesis Score):",
+        start: "BẮT ĐẦU",
+        pause: "TẠM DỪNG",
+        reset: "ĐẶT LẠI",
+        random: "KHIÊU KHÍCH KHỞI THỦY",
+        paramHeader: "Tham số đầu vào",
+        slideCores: "Số nhân Thiên hà Π",
+        slideDensity: "Mật độ trường Ψ",
+        slidePin: "Cường độ dòng P_in",
+        slidePi: "Độ đóng biên Π",
+        slideNoise: "Nhiễu giao thoa A/B",
+        slideTwist: "Hệ số xoắn topo",
+        slideConden: "Ngưỡng ngưng tụ",
+        slideEntropy: "Rò rỉ Entropy",
+        slideSpeed: "Tốc độ giả lập",
+        liveFeed: "LUỒNG DỮ LIỆU GIẢ LẬP // KHÔNG GIAN KHÁI NIỆM",
+        btnSnapshot: "Chụp ảnh màn hình",
+        btnReport: "Export Report",
+        btnPresentation: "Trình diễn",
+        telemetry: "Đăng ký Thực thể Lượng tử",
+        regPsi: "Trường khả thể Ψ",
+        regCondensed: "Hạt nhân ngưng tụ",
+        regVortices: "Nhân xoáy hoạt động",
+        regMatter: "Lõi & Cụm vật chất",
+        regEntropy: "Entropy phi hội tụ",
+        eventLog: "Nhật ký Lượng tử Khởi thủy",
+        btnDismissGuide: "Đồng ý & Tiếp tục",
+        guideTitle: "BẢN ĐỒ THIẾT KẾ & HƯỚNG DẪN LAB",
+        btnModalLang: "CHUYỂN SANG TIẾNG ANH",
+        guideBody: `
+          <p class="text-lab-accent dark:text-indigo-400 font-bold mb-1">Kiến trúc Giả lập AB Genesis:</p>
+          <p class="mb-2">Mô tả trường xác suất ($\\Psi$) trong hai miền A/B được gom tụ bởi toán tử đóng biên ($\\Pi$) và dòng kích hoạt ($P_{in}$), thúc đẩy các xoắn topo ngưng tụ thành cấu trúc dạng electron.</p>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 bg-lab-100 dark:bg-lab-950 p-2.5 rounded border border-lab-200 dark:border-lab-800 text-[11px]">
+            <div>
+              <ul class="space-y-1">
+                <li><strong>🌌 Nhân Π:</strong> Nhiều giếng hấp dẫn đồng khởi sinh.</li>
+                <li><strong>🌀 Trường Ψ:</strong> Sóng xác suất tự do.</li>
+                <li><strong>⚡ Miền A & B:</strong> Bộ phát sóng giao thoa hai bên.</li>
+              </ul>
+            </div>
+            <div>
+              <ul class="space-y-1">
+                <li><strong>☄️ Dòng P_in:</strong> Dòng thực tế hóa hướng tâm.</li>
+                <li><strong>🔒 Biên Π:</strong> Vòng rào giam hãm màu đồng.</li>
+                <li><strong>🔄 Xoắn topo:</strong> Ép hạt ngưng tụ thành xoáy lục.</li>
+              </ul>
+            </div>
+          </div>
+          <p class="text-lab-500 italic mt-2 text-[10px]">Mẹo: Nhấp và rê chuột trên màn hình để tự tạo xoáy lượng tử, hoặc điều khiển thanh trượt ở thẻ trái để kiến tạo thiên hà!</p>
+        `,
+        reportTitle: "BÁO CÁO KIẾN TẠO VẬT CHẤT MÔ PHỎNG",
+        btnCopy: "Sao chép vào Bộ nhớ tạm",
+        btnDownload: "Tải tệp Markdown (.md)",
+        footerDisclaimer: "“Bộ giả lập này là một mô hình khái niệm lấy cảm hứng từ động lực học trường topo và các cấu trúc kiểu Skyrmion. Nó không phải bằng chứng thực nghiệm về sự hình thành electron hay vật lý Big Bang.”",
+        toastCopied: "Đã sao chép báo cáo vào bộ nhớ tạm!",
+        toastDownload: "Đang tải xuống báo cáo...",
+        toastSnapshot: "Đã lưu ảnh chụp màn hình mô phỏng thành công!"
+      }
+    };
+
+    // State Translations
+    const stateTranslations = {
+      EN: {
+        'Potential Field Only': 'Potential Field Only',
+        'Twist Formation': 'Twist Formation',
+        'Boundary Closure': 'Boundary Closure',
+        'Condensation Detected': 'Condensation Detected',
+        'Electron-like Structure Detected': 'Electron-like Structure Detected',
+        'Matter-like Cluster Emerged': 'Matter-like Cluster Emerged',
+        'Collapse / Entropy Dissipation': 'Collapse / Entropy Dissipation'
+      },
+      VN: {
+        'Potential Field Only': 'Chỉ có Trường Khả Thể',
+        'Twist Formation': 'Xoáy topo đang hình thành',
+        'Boundary Closure': 'Toán tử Đóng biên hoạt động',
+        'Condensation Detected': 'Phát hiện Sự Ngưng Tụ',
+        'Electron-like Structure Detected': 'Xoáy dạng Electron phát hiện',
+        'Matter-like Cluster Emerged': 'Cụm vật chất vĩ mô xuất hiện',
+        'Collapse / Entropy Dissipation': 'Sụp đổ / Tiêu tán Entropy'
+      }
+    };
+
+    function switchLanguage(lang) {
+      currentLang = lang;
+      const dict = translations[lang];
+      document.getElementById('btn-lang').innerHTML = `🌐 <span>${lang === 'EN' ? 'VN' : 'EN'}</span>`;
+      
+      document.getElementById('lbl-subtitle').innerHTML = dict.subtitle;
+      document.getElementById('lbl-guide-btn').textContent = dict.guideBtn;
+      document.getElementById('lbl-sys-state').textContent = dict.sysState;
+      document.getElementById('lbl-genesis-score').textContent = dict.genesisScore;
+      document.getElementById('lbl-start').textContent = dict.start;
+      document.getElementById('lbl-pause').textContent = dict.pause;
+      document.getElementById('lbl-reset').textContent = dict.reset;
+      document.getElementById('lbl-random').textContent = dict.random;
+      document.getElementById('lbl-param-header').textContent = dict.paramHeader;
+      document.getElementById('lbl-slide-cores').textContent = dict.slideCores;
+      document.getElementById('lbl-slide-density').textContent = dict.slideDensity;
+      document.getElementById('lbl-slide-pin').textContent = dict.slidePin;
+      document.getElementById('lbl-slide-pi').textContent = dict.slidePi;
+      document.getElementById('lbl-slide-noise').textContent = dict.slideNoise;
+      document.getElementById('lbl-slide-twist').textContent = dict.slideTwist;
+      document.getElementById('lbl-slide-conden').textContent = dict.slideConden;
+      document.getElementById('lbl-slide-entropy').textContent = dict.slideEntropy;
+      document.getElementById('lbl-slide-speed').textContent = dict.slideSpeed;
+      document.getElementById('lbl-live-feed').textContent = dict.liveFeed;
+      document.getElementById('lbl-btn-snapshot').textContent = dict.btnSnapshot;
+      document.getElementById('lbl-btn-report').textContent = dict.btnReport;
+      document.getElementById('lbl-btn-presentation').textContent = dict.btnPresentation;
+      document.getElementById('lbl-telemetry').textContent = dict.telemetry;
+      
+      // Update Registry row headers
+      document.getElementById('lbl-reg-psi').textContent = dict.regPsi;
+      document.getElementById('lbl-reg-condensed').textContent = dict.regCondensed;
+      document.getElementById('lbl-reg-vortices').textContent = dict.regVortices;
+      document.getElementById('lbl-reg-matter').textContent = dict.regMatter;
+      document.getElementById('lbl-reg-entropy').textContent = dict.regEntropy;
+
+      document.getElementById('lbl-event-log').textContent = dict.eventLog;
+      document.getElementById('lbl-guide-title').textContent = dict.guideTitle;
+      document.getElementById('lbl-guide-body').innerHTML = dict.guideBody;
+      document.getElementById('btn-guide-dismiss').textContent = dict.btnDismissGuide;
+      document.getElementById('lbl-report-title').textContent = dict.reportTitle;
+      document.getElementById('lbl-btn-copy').textContent = dict.btnCopy;
+      document.getElementById('lbl-btn-download').textContent = dict.btnDownload;
+      document.getElementById('lbl-footer-disclaimer').textContent = dict.footerDisclaimer;
+      document.getElementById('btn-modal-lang').textContent = dict.btnModalLang;
+
+      updateStateBadge(currentRawState);
+    }
+
+    // Modal quick toggle lang
+    document.getElementById('btn-modal-lang').addEventListener('click', () => {
+      switchLanguage(currentLang === 'EN' ? 'VN' : 'EN');
+    });
+
+    // -------------------------------------------------------------
+    // 2. Light / Dark Mode Toggle (Clean Modern Switch)
+    // -------------------------------------------------------------
+    const btnTheme = document.getElementById('btn-theme');
+    btnTheme.addEventListener('click', () => {
+      const htmlEl = document.documentElement;
+      if (htmlEl.classList.contains('dark')) {
+        htmlEl.classList.remove('dark');
+        btnTheme.textContent = '🌙';
+      } else {
+        htmlEl.classList.add('dark');
+        btnTheme.textContent = '☀️';
+      }
+    });
+
+    // Language Toggle Listener
+    document.getElementById('btn-lang').addEventListener('click', () => {
+      switchLanguage(currentLang === 'EN' ? 'VN' : 'EN');
+    });
+
+    // -------------------------------------------------------------
+    // 3. Lab Guides Modals
+    // -------------------------------------------------------------
+    const modalGuide = document.getElementById('modal-guide');
+    const btnInfo = document.getElementById('btn-info');
+    const btnCloseGuide = document.getElementById('btn-close-guide');
+    const btnGuideDismiss = document.getElementById('btn-guide-dismiss');
+
+    function openGuide() {
+      modalGuide.classList.remove('hidden');
+      setTimeout(() => {
+        modalGuide.classList.add('opacity-100');
+        modalGuide.classList.remove('opacity-0');
+      }, 50);
+    }
+    function closeGuide() {
+      modalGuide.classList.add('opacity-0');
+      modalGuide.classList.remove('opacity-100');
+      setTimeout(() => modalGuide.classList.add('hidden'), 300);
+    }
+    btnInfo.addEventListener('click', openGuide);
+    btnCloseGuide.addEventListener('click', closeGuide);
+    btnGuideDismiss.addEventListener('click', closeGuide);
+
+    // -------------------------------------------------------------
+    // 4. Toast Notification
+    // -------------------------------------------------------------
+    const toast = document.getElementById('toast');
+    const toastMsg = document.getElementById('toast-msg');
+    function showToast(message) {
+      toastMsg.textContent = message;
+      toast.classList.remove('opacity-0', 'translate-y-4');
+      toast.classList.add('opacity-100', 'translate-y-0');
+      setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'translate-y-4');
+      }, 3000);
+    }
+
+    // -------------------------------------------------------------
+    // ON-SCREEN CANVAS FLOATING ALERTS ENGINE (NEW v2.8 / COMPACT v2.9.1)
+    // -------------------------------------------------------------
+    function triggerCanvasAlert(msgEn, msgVn, type) {
+      const container = document.getElementById('canvas-alerts-container');
+      if (!container) return;
+
+      const alertDiv = document.createElement('div');
+      alertDiv.className = `transform translate-x-[-10px] opacity-0 transition-all duration-200 ease-out px-2.5 py-1 rounded text-[9px] font-bold tracking-wider uppercase border flex items-center gap-1.5 shadow-sm backdrop-blur-xs flex-shrink-0`;
+      
+      let icon = "●";
+      if (type === 'success') {
+        alertDiv.className += " bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400";
+        icon = "✓";
+      } else if (type === 'danger') {
+        alertDiv.className += " bg-red-500/10 border-red-500/30 text-red-600 dark:text-red-400";
+        icon = "⚠️";
+      } else if (type === 'warning') {
+        alertDiv.className += " bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400";
+        icon = "⚡";
+      } else {
+        alertDiv.className += " bg-indigo-500/10 border-indigo-500/30 text-indigo-600 dark:text-indigo-400";
+        icon = "ℹ️";
+      }
+
+      const msg = currentLang === 'EN' ? msgEn : msgVn;
+      alertDiv.innerHTML = `<span>${icon}</span> <span class="truncate">${msg}</span>`;
+      container.appendChild(alertDiv);
+
+      // Trigger animation frame for entry transitions
+      requestAnimationFrame(() => {
+        alertDiv.classList.remove('translate-x-[-10px]', 'opacity-0');
+      });
+
+      // Maintain internal scroll position automatically
+      container.scrollTop = container.scrollHeight;
+
+      // Limit concurrent elements to max 5 to prevent spilling out
+      while (container.children.length > 5) {
+        container.removeChild(container.firstChild);
+      }
+
+      // Smoothly release alert node after 4 seconds
+      setTimeout(() => {
+        if (alertDiv.parentNode === container) {
+          alertDiv.classList.add('translate-x-[-10px]', 'opacity-0');
+          setTimeout(() => {
+            if (alertDiv.parentNode === container) {
+              alertDiv.remove();
+            }
+          }, 200);
+        }
+      }, 4000);
+    }
+
+    // -------------------------------------------------------------
+    // 5. Simulation Engine Setup & Classes
+    // -------------------------------------------------------------
+    const canvas = document.getElementById('genesis-canvas');
+    const ctx = canvas.getContext('2d');
+
+    // Interactive pointer state
+    let mouseX = null;
+    let mouseY = null;
+    let isMouseDown = false;
+
+    canvas.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      mouseX = e.clientX - rect.left;
+      mouseY = e.clientY - rect.top;
+    });
+    canvas.addEventListener('mousedown', () => { isMouseDown = true; });
+    canvas.addEventListener('mouseup', () => { isMouseDown = false; });
+    canvas.addEventListener('mouseleave', () => {
+      isMouseDown = false;
+      mouseX = null;
+      mouseY = null;
+    });
+
+    // Touch support for mobile devices
+    canvas.addEventListener('touchmove', (e) => {
+      if (e.touches.length > 0) {
+        const rect = canvas.getBoundingClientRect();
+        mouseX = e.touches[0].clientX - rect.left;
+        mouseY = e.touches[0].clientY - rect.top;
+      }
+    });
+    canvas.addEventListener('touchstart', (e) => {
+      isMouseDown = true;
+      if (e.touches.length > 0) {
+        const rect = canvas.getBoundingClientRect();
+        mouseX = e.touches[0].clientX - rect.left;
+        mouseY = e.touches[0].clientY - rect.top;
+      }
+    });
+    canvas.addEventListener('touchend', () => {
+      isMouseDown = false;
+      mouseX = null;
+      mouseY = null;
+    });
+
+    // Adaptive high resolution setup
+    function resizeCanvas() {
+      const parent = canvas.parentElement;
+      canvas.width = parent.clientWidth;
+      canvas.height = parent.clientHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Fieldpoint / Particle Class definition (Refined palette, less glow)
+    class Particle {
+      constructor(x, y, isPin = false) {
+        this.x = x;
+        this.y = y;
+        this.originX = x;
+        this.originY = y;
+        this.vx = (Math.random() - 0.5) * 1.5;
+        this.vy = (Math.random() - 0.5) * 1.5;
+        this.phase = Math.random() * Math.PI * 2;
+        this.amplitude = Math.random() * 20;
+        this.twist = 0;
+        this.energy = Math.random() * 0.3;
+        this.isPin = isPin; // whether this is an actualization flow particle
+        this.state = 'free'; // 'free', 'twisting', 'condensed', 'stable'
+        this.size = isPin ? Math.random() * 1.5 + 1.2 : Math.random() * 1.2 + 0.8;
+        this.trail = [];
+        this.trailLimit = isPin ? 6 : 9;
+      }
+
+      update(time, params, cores, vortices, localDensity) {
+        // Record trail for smoother visuals
+        this.trail.push({ x: this.x, y: this.y });
+        if (this.trail.length > this.trailLimit) {
+          this.trail.shift();
+        }
+
+        // Dynamically find the nearest gravity core
+        let nearestCore = cores[0];
+        let minDistToCore = Infinity;
+        cores.forEach(c => {
+          let dist = Math.hypot(c.x - this.x, c.y - this.y);
+          if (dist < minDistToCore) {
+            minDistToCore = dist;
+            nearestCore = c;
+          }
+        });
+
+        if (this.isPin) {
+          // Actualization flow particles head towards the nearest active core or local vortices
+          let target = nearestCore;
+          if (vortices.length > 0) {
+            let minDist = Infinity;
+            for (let v of vortices) {
+              let d = Math.hypot(v.x - this.x, v.y - this.y);
+              if (d < minDist) {
+                minDist = d;
+                target = v;
+              }
+            }
+          }
+
+          const dx = target.x - this.x;
+          const dy = target.y - this.y;
+          const dist = Math.hypot(dx, dy);
+          
+          if (dist < 10) {
+            // Re-spawn on external edge
+            const angle = Math.random() * Math.PI * 2;
+            const radius = Math.max(canvas.width, canvas.height) * 0.5;
+            this.x = nearestCore.x + Math.cos(angle) * radius;
+            this.y = nearestCore.y + Math.sin(angle) * radius;
+            this.vx = (Math.random() - 0.5) * 0.5;
+            this.vy = (Math.random() - 0.5) * 0.5;
+            this.trail = [];
+          } else {
+            const force = (params.pin * 4.5) / (dist * 0.05 + 1);
+            this.vx += (dx / dist) * force * 0.2;
+            this.vy += (dy / dist) * force * 0.2;
+            
+            const perpX = -dy / dist;
+            const perpY = dx / dist;
+            this.vx += perpX * params.twist * 0.3;
+            this.vy += perpY * params.twist * 0.3;
+          }
+
+          this.vx *= 0.94;
+          this.vy *= 0.94;
+          this.x += this.vx * params.speed;
+          this.y += this.vy * params.speed;
+
+          this.energy = params.pin;
+
+        } else {
+          // Standard Ψ Possibility Field particles heading to nearest core
+          const dx = this.x - nearestCore.x;
+          const dy = this.y - nearestCore.y;
+          const distFromCore = minDistToCore;
+
+          // 1. Interference field from side domains A and B
+          const waveA = Math.sin((this.x * 0.05) - (time * 0.08)) * params.noise * 12;
+          const waveB = Math.sin(((canvas.width - this.x) * 0.05) + (time * 0.08)) * params.noise * 12;
+          this.vy += (waveA - waveB) * 0.05;
+
+          // 2. Pi Boundary-Closure Constraint Force (centered around nearest active core)
+          const piBoundaryRadius = Math.min(canvas.width, canvas.height) * (params.cores > 1 ? 0.14 : 0.28);
+          if (params.pi > 0) {
+            const closureDiff = distFromCore - piBoundaryRadius;
+            const closureForce = -closureDiff * params.pi * 0.015;
+            this.vx += (dx / (distFromCore + 1)) * closureForce;
+            this.vy += (dy / (distFromCore + 1)) * closureForce;
+          }
+
+          // 3. Twist Rotational Influence around local energetic vortices or nearest core
+          let localizedVortex = false;
+          let activeTarget = nearestCore;
+          let activeDist = distFromCore;
+
+          for (let v of vortices) {
+            const d = Math.hypot(this.x - v.x, this.y - v.y);
+            if (d < v.influenceRadius) {
+              localizedVortex = true;
+              activeTarget = v;
+              activeDist = d;
+              break;
+            }
+          }
+
+          const tdx = this.x - activeTarget.x;
+          const tdy = this.y - activeTarget.y;
+          const tdist = Math.hypot(tdx, tdy);
+
+          if (params.twist > 0 && tdist > 1) {
+            const perpX = -tdy / tdist;
+            const perpY = tdx / tdist;
+            
+            const twistPull = params.twist * (localizedVortex ? 0.9 : 0.3) * (50 / (tdist + 30));
+            this.vx += perpX * twistPull;
+            this.vy += perpY * twistPull;
+            
+            this.vx -= (tdx / tdist) * twistPull * 0.15;
+            this.vy -= (tdy / tdist) * twistPull * 0.15;
+          }
+
+          // 4. Interactive Cursor Drag / Stir Perturbation
+          if (isMouseDown && mouseX !== null && mouseY !== null) {
+            const mDist = Math.hypot(this.x - mouseX, this.y - mouseY);
+            if (mDist < 75) {
+              const intensity = (1 - mDist / 75);
+              this.energy += intensity * 0.12; 
+              const mdx = this.x - mouseX;
+              const mdy = this.y - mouseY;
+              const spinAngle = Math.atan2(mdy, mdx) + Math.PI / 2; 
+              this.vx += Math.cos(spinAngle) * intensity * 2.2;
+              this.vy += Math.sin(spinAngle) * intensity * 2.2;
+            }
+          }
+
+          // 5. Dynamic Energy calculation based on excitation factors AND local space density
+          const densityExcitation = localDensity * 0.015; 
+          let excitation = (params.pin * 0.35) + (params.twist * 0.25) + densityExcitation - (params.entropy * 0.4);
+          if (localizedVortex) {
+            excitation += 0.4;
+          }
+          this.energy = Math.max(0, Math.min(1.2, this.energy * 0.94 + excitation * 0.06));
+
+          // State evaluation
+          if (this.energy > params.conden) {
+            this.state = 'condensed';
+          } else if (params.twist > 0.8 && distFromCore < piBoundaryRadius * 1.5) {
+            this.state = 'twisting';
+          } else {
+            this.state = 'free';
+          }
+
+          const drag = 0.95 - (params.entropy * 0.05);
+          this.vx *= drag;
+          this.vy *= drag;
+
+          this.x += this.vx * params.speed;
+          this.y += this.vy * params.speed;
+
+          const pad = 10;
+          if (this.x < pad || this.x > canvas.width - pad) {
+            this.vx *= -1;
+            this.x = Math.max(pad, Math.min(canvas.width - pad, this.x));
+          }
+          if (this.y < pad || this.y > canvas.height - pad) {
+            this.vy *= -1;
+            this.y = Math.max(pad, Math.min(canvas.height - pad, this.y));
+          }
+        }
+      }
+
+      draw(ctx, isDark) {
+        if (this.trail.length > 1) {
+          ctx.beginPath();
+          ctx.moveTo(this.trail[0].x, this.trail[0].y);
+          for (let i = 1; i < this.trail.length; i++) {
+            ctx.lineTo(this.trail[i].x, this.trail[i].y);
+          }
+          let colorAlpha = isDark ? 0.07 : 0.12;
+          if (this.isPin) {
+            ctx.strokeStyle = `rgba(219, 39, 119, ${colorAlpha})`; // lab-pin
+          } else {
+            ctx.strokeStyle = this.state === 'condensed' 
+              ? `rgba(5, 150, 105, ${colorAlpha * 2})` 
+              : `rgba(2, 132, 199, ${colorAlpha})`; // lab-psi
+          }
+          ctx.lineWidth = this.size;
+          ctx.stroke();
+        }
+
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        
+        if (this.isPin) {
+          ctx.fillStyle = '#db2777'; // magenta pin
+        } else {
+          if (this.state === 'condensed') {
+            ctx.fillStyle = '#059669'; // vortex emerald
+          } else if (this.state === 'twisting') {
+            ctx.fillStyle = '#4f46e5'; // active indigo
+          } else {
+            ctx.fillStyle = '#0284c7'; // psi cyan
+          }
+        }
+        ctx.fill();
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 6. Simulation State Variables
+    // -------------------------------------------------------------
+    let particles = [];
+    let pinParticles = [];
+    let isRunning = true;
+    let isIgnited = false; // Key trigger state variable for actual transmutation genesis
+    let time = 0;
+
+    const vortexCenters = []; 
+    let matterClusterEmerged = false;
+    let genesisScore = 0;
+    let currentRawState = 'Potential Field Only';
+
+    const controls = {
+      cores: document.getElementById('slide-cores'),
+      density: document.getElementById('slide-density'),
+      pin: document.getElementById('slide-pin'),
+      pi: document.getElementById('slide-pi'),
+      noise: document.getElementById('slide-noise'),
+      twist: document.getElementById('slide-twist'),
+      conden: document.getElementById('slide-conden'),
+      entropy: document.getElementById('slide-entropy'),
+      speed: document.getElementById('slide-speed')
+    };
+
+    const values = {
+      cores: document.getElementById('val-cores'),
+      density: document.getElementById('val-density'),
+      pin: document.getElementById('val-pin'),
+      pi: document.getElementById('val-pi'),
+      noise: document.getElementById('val-noise'),
+      twist: document.getElementById('val-twist'),
+      conden: document.getElementById('val-conden'),
+      entropy: document.getElementById('val-entropy'),
+      speed: document.getElementById('val-speed')
+    };
+
+    function getParams() {
+      return {
+        cores: parseInt(controls.cores.value),
+        density: parseInt(controls.density.value),
+        pin: parseFloat(controls.pin.value),
+        pi: parseFloat(controls.pi.value),
+        noise: parseFloat(controls.noise.value),
+        twist: parseFloat(controls.twist.value),
+        conden: parseFloat(controls.conden.value),
+        entropy: parseFloat(controls.entropy.value),
+        speed: parseFloat(controls.speed.value)
+      };
+    }
+
+    // Generate symmetrical galaxy cores depending on configuration count
+    function getActiveCores(count) {
+      const w = canvas.width;
+      const h = canvas.height;
+      const center = { x: w / 2, y: h / 2 };
+      
+      if (count === 1) {
+        return [center];
+      }
+      
+      const cores = [];
+      const radius = Math.min(w, h) * 0.22;
+      
+      for (let i = 0; i < count; i++) {
+        const angle = (i * Math.PI * 2) / count - Math.PI / 2;
+        cores.push({
+          x: center.x + Math.cos(angle) * radius,
+          y: center.y + Math.sin(angle) * radius
+        });
+      }
+      return cores;
+    }
+
+    function updateValueLabels() {
+      const p = getParams();
+      values.cores.textContent = p.cores;
+      values.density.textContent = p.density;
+      values.pin.textContent = p.pin.toFixed(2);
+      values.pi.textContent = p.pi.toFixed(2);
+      values.noise.textContent = p.noise.toFixed(2);
+      values.twist.textContent = p.twist.toFixed(1);
+      values.conden.textContent = p.conden.toFixed(2);
+      values.entropy.textContent = p.entropy.toFixed(2);
+      values.speed.textContent = p.speed.toFixed(1) + 'x';
+    }
+
+    Object.keys(controls).forEach(key => {
+      controls[key].addEventListener('input', () => {
+        updateValueLabels();
+        if (key === 'density') {
+          adjustParticleDensity();
+        }
+      });
+    });
+
+    // -------------------------------------------------------------
+    // 7. Core Particle Adjustment Mechanics
+    // -------------------------------------------------------------
+    function adjustParticleDensity() {
+      const targetDensity = parseInt(controls.density.value);
+      if (particles.length < targetDensity) {
+        while (particles.length < targetDensity) {
+          const x = Math.random() * canvas.width;
+          const y = Math.random() * canvas.height;
+          particles.push(new Particle(x, y));
+        }
+      } else if (particles.length > targetDensity) {
+        particles.splice(targetDensity);
+      }
+    }
+
+    function initializeSimulation() {
+      particles = [];
+      pinParticles = [];
+      const p = getParams();
+      time = 0;
+      isIgnited = false; // Reset to safe Cold State
+      matterClusterEmerged = false;
+      vortexCenters.length = 0;
+
+      for (let i = 0; i < p.density; i++) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        particles.push(new Particle(x, y));
+      }
+
+      const pinCount = 80;
+      const center = { x: canvas.width / 2, y: canvas.height / 2 };
+      for (let i = 0; i < pinCount; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const radius = Math.max(canvas.width, canvas.height) * 0.45;
+        const px = center.x + Math.cos(angle) * radius;
+        const py = center.y + Math.sin(angle) * radius;
+        pinParticles.push(new Particle(px, py, true));
+      }
+
+      clearLog();
+      addLog("Initializing Primordial Lab Cosmology...", "system");
+      addLog("Ψ-Potential Field configured with " + p.density + " degrees.", "psi");
+      addLog("Inward actualization streams generated [OFFLINE].", "pin");
+      addLog("System is COLD. Click START to ignite active genesis.", "system");
+      
+      // Clean up previous canvas alerts
+      const alertContainer = document.getElementById('canvas-alerts-container');
+      if (alertContainer) alertContainer.innerHTML = '';
+    }
+
+    // -------------------------------------------------------------
+    // 8. Event Logger Implementation
+    // -------------------------------------------------------------
+    const logTerminal = document.getElementById('log-terminal');
+
+    function addLog(text, category = 'system') {
+      const timestamp = (time / 60).toFixed(2);
+      const logDiv = document.createElement('div');
+      logDiv.className = 'border-b border-lab-100 dark:border-lab-850 py-0.5';
+      
+      let badgeColor = 'text-lab-500';
+      if (category === 'psi') badgeColor = 'text-lab-psi';
+      if (category === 'pin') badgeColor = 'text-lab-pin';
+      if (category === 'pi') badgeColor = 'text-lab-pi';
+      if (category === 'success') badgeColor = 'text-lab-vortex font-bold';
+      if (category === 'warning') badgeColor = 'text-lab-pi font-bold';
+      if (category === 'danger') badgeColor = 'text-red-500 font-bold';
+
+      logDiv.innerHTML = `<span class="text-lab-400 font-mono">[${timestamp}s]</span> <span class="${badgeColor}">[${category.toUpperCase()}]</span> <span>${text}</span>`;
+      logTerminal.appendChild(logDiv);
+      logTerminal.scrollTop = logTerminal.scrollHeight;
+    }
+
+    function clearLog() {
+      logTerminal.innerHTML = '';
+    }
+    document.getElementById('btn-clear-log').addEventListener('click', clearLog);
+
+    // -------------------------------------------------------------
+    // 9. State Manager & Status Badge Color Changer
+    // -------------------------------------------------------------
+    const badgeState = document.getElementById('badge-state');
+
+    function updateStateBadge(state) {
+      currentRawState = state;
+      const translatedText = stateTranslations[currentLang]?.[state] || state;
+      badgeState.textContent = translatedText;
+
+      badgeState.className = "px-2.5 py-0.5 rounded text-xs font-semibold tracking-wide transition-all duration-200 border";
+
+      switch (state) {
+        case 'Potential Field Only':
+          badgeState.classList.add('bg-lab-100', 'text-lab-700', 'border-lab-200', 'dark:bg-lab-800', 'dark:text-lab-300', 'dark:border-lab-700');
+          break;
+        case 'Twist Formation':
+          badgeState.classList.add('bg-indigo-50', 'text-indigo-700', 'border-indigo-200', 'dark:bg-indigo-950/20', 'dark:text-indigo-300', 'dark:border-indigo-900/30');
+          break;
+        case 'Boundary Closure':
+          badgeState.classList.add('bg-amber-50', 'text-amber-700', 'border-amber-200', 'dark:bg-amber-950/20', 'dark:text-amber-300', 'dark:border-amber-900/30');
+          break;
+        case 'Condensation Detected':
+          badgeState.classList.add('bg-cyan-50', 'text-cyan-700', 'border-cyan-200', 'dark:bg-cyan-950/20', 'dark:text-cyan-300', 'dark:border-cyan-900/30');
+          break;
+        case 'Electron-like Structure Detected':
+          badgeState.classList.add('bg-emerald-50', 'text-emerald-700', 'border-emerald-200', 'dark:bg-emerald-950/20', 'dark:text-emerald-300', 'dark:border-emerald-900/30');
+          break;
+        case 'Matter-like Cluster Emerged':
+          badgeState.classList.add('bg-indigo-600', 'text-white', 'border-indigo-700');
+          break;
+        case 'Collapse / Entropy Dissipation':
+          badgeState.classList.add('bg-red-50', 'text-red-700', 'border-red-200', 'dark:bg-red-950/20', 'dark:text-red-300', 'dark:border-red-900/30');
+          break;
+      }
+    }
+
+    // -------------------------------------------------------------
+    // 10. Genesis Vortex & Cluster Detection Engine
+    // -------------------------------------------------------------
+    class VortexCenter {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.particleCount = 1;
+        this.influenceRadius = 75;
+        this.lifespan = 120; 
+        this.age = 0;
+        this.id = Math.random().toString(36).substr(2, 4).toUpperCase();
+      }
+    }
+
+    function processTopologicalClusters(p) {
+      const condensedList = particles.filter(pt => pt.state === 'condensed');
+
+      const currentVortices = [];
+      const clusterDistanceThreshold = 35;
+
+      condensedList.forEach(pt => {
+        let placed = false;
+        for (let cv of currentVortices) {
+          const d = Math.hypot(pt.x - cv.x, pt.y - cv.y);
+          if (d < clusterDistanceThreshold) {
+            cv.x = (cv.x * cv.particleCount + pt.x) / (cv.particleCount + 1);
+            cv.y = (cv.y * cv.particleCount + pt.y) / (cv.particleCount + 1);
+            cv.particleCount++;
+            placed = true;
+            break;
+          }
+        }
+        if (!placed) {
+          currentVortices.push(new VortexCenter(pt.x, pt.y));
+        }
+      });
+
+      const minimumCondensedNodesForVortex = 6;
+      const verifiedVortices = currentVortices.filter(v => v.particleCount >= minimumCondensedNodesForVortex);
+
+      verifiedVortices.forEach(newV => {
+        let matched = false;
+        for (let existing of vortexCenters) {
+          const d = Math.hypot(newV.x - existing.x, newV.y - existing.y);
+          if (d < 45) {
+            existing.x = existing.x * 0.85 + newV.x * 0.15;
+            existing.y = existing.y * 0.85 + newV.y * 0.15;
+            existing.particleCount = newV.particleCount;
+            existing.age += p.speed;
+            existing.lifespan = Math.min(240, existing.lifespan + 2);
+            matched = true;
+            break;
+          }
+        }
+        if (!matched) {
+          vortexCenters.push(newV);
+          addLog("New vortex seed [" + newV.id + "] detected inside active fields.", "success");
+          
+          // ON-SCREEN HUD TRIGGER
+          triggerCanvasAlert(
+            `New ψ-Vortex Seed [${newV.id}] Detected`, 
+            `Phát Hiện Hạt Nhân Xoáy [${newV.id}] Mới`, 
+            'success'
+          );
+        }
+      });
+
+      for (let i = vortexCenters.length - 1; i >= 0; i--) {
+        const v = vortexCenters[i];
+        let foundMatch = false;
+        for (let verified of verifiedVortices) {
+          if (Math.hypot(v.x - verified.x, v.y - verified.y) < 45) {
+            foundMatch = true;
+            break;
+          }
+        }
+        if (!foundMatch) {
+          v.lifespan -= p.speed;
+          if (v.lifespan <= 0) {
+            addLog("Vortex structure [" + v.id + "] dissolved due to lack of cohesion.", "danger");
+            
+            // ON-SCREEN HUD TRIGGER
+            triggerCanvasAlert(
+              `ψ-Vortex [${v.id}] Dissolved`, 
+              `Cấu Trúc Xoáy [${v.id}] Đã Tiêu Tán`, 
+              'danger'
+            );
+            
+            vortexCenters.splice(i, 1);
+          }
+        }
+      }
+
+      let stableVortices = vortexCenters.filter(v => v.age > 80);
+      
+      // Matter cluster condition scales with core density
+      const clusterThreshold = p.cores > 1 ? p.cores * 1.5 : 3;
+      if (stableVortices.length >= clusterThreshold && p.pi > 0.5 && !matterClusterEmerged) {
+        matterClusterEmerged = true;
+        addLog("CRITICAL ACCRETION: Symmetrical galaxy vortices coalesced into macro structures!", "success");
+        
+        // ON-SCREEN HUD TRIGGER
+        triggerCanvasAlert(
+          "Macro Galaxy Co-Genesis Achieved", 
+          "Đồng Khởi Sinh Thiên Hà Vĩ Mô Thành Công", 
+          "success"
+        );
+      } else if (stableVortices.length < (clusterThreshold / 2) && matterClusterEmerged) {
+        matterClusterEmerged = false;
+        addLog("Dissipation: Galaxy cluster structures returned to standalone orbital structures.", "warning");
+        
+        // ON-SCREEN HUD TRIGGER
+        triggerCanvasAlert(
+          "Galaxy Cohesion Dissipated", 
+          "Thiên Hà Tiêu Tán Thành Các Xoáy Đơn Lẻ", 
+          "warning"
+        );
+      }
+
+      // Live warning triggers for high entropy leakage preventing condensation (NEW v2.8)
+      if (p.entropy > 0.45 && condensedList.length === 0 && Math.random() < 0.004) {
+        triggerCanvasAlert(
+          "High Entropy Leakage Obstructing Condensation", 
+          "Rò Rỉ Entropy Cao Đang Ngăn Cản Sự Ngưng Tụ", 
+          "danger"
+        );
+      }
+
+      let nextState = 'Potential Field Only';
+
+      if (p.entropy > 0.75 && vortexCenters.length === 0) {
+        nextState = 'Collapse / Entropy Dissipation';
+      } else if (matterClusterEmerged) {
+        nextState = 'Matter-like Cluster Emerged';
+      } else if (stableVortices.length > 0) {
+        nextState = 'Electron-like Structure Detected';
+      } else if (condensedList.length > (15 * p.cores)) {
+        nextState = 'Condensation Detected';
+      } else if (p.pi > 0.55) {
+        nextState = 'Boundary Closure';
+      } else if (p.twist > 0.7) {
+        nextState = 'Twist Formation';
+      }
+
+      if (nextState !== currentRawState) {
+        updateStateBadge(nextState);
+        addLog(`Quantum Phase Shift: -> ${stateTranslations[currentLang]?.[nextState] || nextState}`, "system");
+        
+        // ON-SCREEN HUD TRIGGER FOR PHASE SHIFT
+        const stateEn = stateTranslations['EN'][nextState];
+        const stateVn = stateTranslations['VN'][nextState];
+        triggerCanvasAlert(
+          `Phase Shift: ${stateEn}`, 
+          `Chuyển Pha: ${stateVn}`, 
+          nextState === 'Collapse / Entropy Dissipation' ? 'danger' : 'info'
+        );
+      }
+
+      const avgEnergy = particles.reduce((acc, current) => acc + current.energy, 0) / particles.length;
+      const twistStability = (vortexCenters.length * (20 / p.cores)) + (p.twist * 30) - (p.entropy * 25);
+      const normalizedTwistStability = Math.max(0, Math.min(100, twistStability));
+
+      // -------------------------------------------------------------
+      // Dynamic Quantum Registry Telemetry Feeds (NEW v2.9 Layout)
+      // -------------------------------------------------------------
+      document.getElementById('metric-psi').textContent = (avgEnergy * 100).toFixed(1) + '%';
+      
+      // Condensed Core count row 2
+      document.getElementById('metric-condensed-count').textContent = condensedList.length;
+
+      // Active Vortices count and dynamic name/tag directory row 3
+      document.getElementById('metric-vortices-count').textContent = vortexCenters.length;
+      const activeVortexTags = vortexCenters.map(v => `[${v.id}]`).join(', ') || (currentLang === 'EN' ? 'None' : 'Không có');
+      document.getElementById('metric-vortices-list').textContent = activeVortexTags;
+
+      // Galaxy cores & Matter active status row 4
+      let matterDesc = currentLang === 'EN' ? 'None' : 'Không có';
+      if (isIgnited) {
+        if (matterClusterEmerged) {
+          matterDesc = currentLang === 'EN' ? `ACTIVE GALAXY (${p.cores})` : `THIÊN HÀ HOẠT ĐỘNG (${p.cores})`;
+        } else {
+          matterDesc = currentLang === 'EN' ? `${p.cores} Cores Bound` : `${p.cores} Nhân Đang Giam`;
+        }
+      }
+      document.getElementById('metric-matter-status').textContent = matterDesc;
+
+      // Non-Converging Entropy percent row 5
+      const nonConvergingEntropy = p.entropy * 100;
+      document.getElementById('metric-entropy-percent').textContent = nonConvergingEntropy.toFixed(1) + '%';
+
+      // Accretion loading bar under the registry card
+      const accretionPercent = Math.min(100, (condensedList.length / (particles.length * 0.4)) * 100);
+      document.getElementById('bar-progress').style.width = accretionPercent + '%';
+
+      genesisScore = Math.round((normalizedTwistStability * 1.5) + (condensedList.length * 0.8) + (vortexCenters.length * 35) + (matterClusterEmerged ? 350 : 0) - (p.entropy * 120));
+      genesisScore = Math.max(0, genesisScore);
+      document.getElementById('txt-score').textContent = genesisScore;
+    }
+
+    // -------------------------------------------------------------
+    // 11. Core Animation Draw Loop (Scientific Grid Theme)
+    // -------------------------------------------------------------
+    function drawScientificGrid(isDark) {
+      ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(15, 23, 42, 0.04)';
+      ctx.lineWidth = 1;
+      
+      const gridSize = 40;
+      
+      for (let x = 0; x < canvas.width; x += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < canvas.height; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(15, 23, 42, 0.1)';
+      ctx.lineWidth = 1.2;
+
+      ctx.beginPath();
+      ctx.moveTo(0, centerY);
+      ctx.lineTo(canvas.width, centerY);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(centerX, 0);
+      ctx.lineTo(centerX, canvas.height);
+      ctx.stroke();
+    }
+
+    function drawOuterInterferenceDomains() {
+      const isDark = document.documentElement.classList.contains('dark');
+      const gradA = ctx.createLinearGradient(0, 0, canvas.width * 0.2, 0);
+      const gradB = ctx.createLinearGradient(canvas.width, 0, canvas.width * 0.8, 0);
+
+      const colorA = isDark ? 'rgba(2, 132, 199, 0.04)' : 'rgba(2, 132, 199, 0.03)';
+      const colorB = isDark ? 'rgba(79, 70, 229, 0.04)' : 'rgba(79, 70, 229, 0.03)';
+
+      gradA.addColorStop(0, colorA);
+      gradA.addColorStop(1, 'rgba(0,0,0,0)');
+      
+      gradB.addColorStop(0, colorB);
+      gradB.addColorStop(1, 'rgba(0,0,0,0)');
+
+      ctx.fillStyle = gradA;
+      ctx.fillRect(0, 0, canvas.width * 0.2, canvas.height);
+
+      ctx.fillStyle = gradB;
+      ctx.fillRect(canvas.width * 0.8, 0, canvas.width * 0.2, canvas.height);
+
+      ctx.font = 'bold 10px "Share Tech Mono"';
+      ctx.fillStyle = isDark ? 'rgba(2, 132, 199, 0.4)' : 'rgba(2, 132, 199, 0.5)';
+      ctx.fillText("DOMAIN A (WAVE SOURCE)", 15, 22);
+      
+      ctx.textAlign = 'right';
+      ctx.fillStyle = isDark ? 'rgba(79, 70, 229, 0.4)' : 'rgba(79, 70, 229, 0.5)';
+      ctx.fillText("DOMAIN B (WAVE SOURCE)", canvas.width - 15, 22);
+      ctx.textAlign = 'left'; 
+    }
+
+    function drawSystemEngine() {
+      const p = getParams();
+      const isDark = document.documentElement.classList.contains('dark');
+      
+      ctx.fillStyle = isDark ? '#020617' : '#f8fafc';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      drawScientificGrid(isDark);
+      drawOuterInterferenceDomains();
+
+      const activeCores = getActiveCores(p.cores);
+
+      // Active vs Inactive Params based on isIgnited state
+      const activeParams = { ...p };
+      if (!isIgnited) {
+        activeParams.pin = 0;
+        activeParams.pi = 0;
+        activeParams.twist = 0;
+      }
+
+      // Draw all active core boundaries Π
+      activeCores.forEach((core, idx) => {
+        const radius = Math.min(canvas.width, canvas.height) * (p.cores > 1 ? 0.14 : 0.28);
+        
+        ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(15, 23, 42, 0.03)';
+        ctx.beginPath();
+        ctx.arc(core.x, core.y, radius * 1.5, 0, Math.PI * 2);
+        ctx.stroke();
+
+        if (p.pi > 0) {
+          ctx.beginPath();
+          ctx.arc(core.x, core.y, radius, 0, Math.PI * 2);
+          if (isIgnited) {
+            ctx.strokeStyle = `rgba(217, 119, 6, ${p.pi * 0.45})`; // active bronze
+            ctx.setLineDash([3, 5 + (1 - p.pi) * 8]);
+          } else {
+            ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(15, 23, 42, 0.08)'; // offline
+            ctx.setLineDash([2, 8]);
+          }
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+          ctx.setLineDash([]); // clear dash
+
+          // Core Identifier label
+          ctx.font = '8px "Share Tech Mono"';
+          ctx.fillStyle = isIgnited ? `rgba(217, 119, 6, ${p.pi * 0.7})` : `rgba(148, 163, 184, 0.3)`;
+          ctx.fillText(`Π-CORE [0${idx+1}]`, core.x - 24, core.y - radius - 6);
+        }
+      });
+
+      // Draw actualization vector currents indicators (P_in flows direction) towards cores
+      if (isIgnited && p.pin > 0.1 && time % 60 < 20) {
+        activeCores.forEach(core => {
+          ctx.beginPath();
+          ctx.arc(core.x, core.y, Math.min(canvas.width, canvas.height) * (p.cores > 1 ? 0.18 : 0.35), 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(219, 39, 119, ${p.pin * 0.15})`;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        });
+      }
+
+      // -------------------------------------------------------------
+      // O(N) Spatial Grid Density Calculation (Realtime pressure dynamics)
+      // -------------------------------------------------------------
+      const gridCols = 12;
+      const gridRows = 12;
+      const cellW = canvas.width / gridCols;
+      const cellH = canvas.height / gridRows;
+      const densityGrid = Array(gridCols * gridRows).fill(0);
+
+      particles.forEach(pt => {
+        const col = Math.floor(pt.x / cellW);
+        const row = Math.floor(pt.y / cellH);
+        if (col >= 0 && col < gridCols && row >= 0 && row < gridRows) {
+          densityGrid[row * gridCols + col]++;
+        }
+      });
+
+      // Update & Draw standard particles
+      particles.forEach(pt => {
+        const col = Math.floor(pt.x / cellW);
+        const row = Math.floor(pt.y / cellH);
+        let localDensity = 0;
+        if (col >= 0 && col < gridCols && row >= 0 && row < gridRows) {
+          localDensity = densityGrid[row * gridCols + col];
+        }
+
+        pt.update(time, activeParams, activeCores, vortexCenters, localDensity);
+        pt.draw(ctx, isDark);
+      });
+
+      // Update & Draw Pin stream flows
+      if (isIgnited && p.pin > 0) {
+        const activeCount = Math.round(p.pin * pinParticles.length);
+        for (let i = 0; i < activeCount; i++) {
+          pinParticles[i].update(time, activeParams, activeCores, vortexCenters, 0);
+          pinParticles[i].draw(ctx, isDark);
+        }
+      }
+
+      // Draw interactive pointer feedback halo
+      if (isMouseDown && mouseX !== null && mouseY !== null) {
+        ctx.beginPath();
+        ctx.arc(mouseX, mouseY, 75, 0, Math.PI * 2);
+        ctx.strokeStyle = isDark ? 'rgba(79, 70, 229, 0.15)' : 'rgba(79, 70, 229, 0.1)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(mouseX, mouseY, 3, 0, Math.PI * 2);
+        ctx.fillStyle = '#4f46e5';
+        ctx.fill();
+      }
+
+      // Render Active Electron-like vortices
+      if (isIgnited) {
+        vortexCenters.forEach(v => {
+          ctx.beginPath();
+          ctx.arc(v.x, v.y, 18, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(5, 150, 105, ${Math.min(1.0, v.age / 100) * 0.7})`;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+
+          const count = 3;
+          for (let j = 0; j < count; j++) {
+            const orbitAngle = (time * 0.04 + (j * (Math.PI * 2) / count));
+            const ox = v.x + Math.cos(orbitAngle) * 14;
+            const oy = v.y + Math.sin(orbitAngle) * 14;
+            ctx.beginPath();
+            ctx.arc(ox, oy, 2, 0, Math.PI * 2);
+            ctx.fillStyle = '#059669';
+            ctx.fill();
+          }
+
+          ctx.font = '8px "JetBrains Mono"';
+          ctx.fillStyle = isDark ? '#6ee7b7' : '#047857';
+          ctx.fillText(`ψ-Vortex [${v.id}]`, v.x - 24, v.y - 24);
+        });
+      }
+
+      // Render Macro Matter-like Cluster Cores centered on nearest core
+      if (isIgnited && matterClusterEmerged) {
+        activeCores.forEach((core, idx) => {
+          const pulseSize = 25 + Math.sin(time * 0.08 + idx) * 3;
+          
+          ctx.beginPath();
+          ctx.arc(core.x, core.y, pulseSize, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(79, 70, 229, 0.4)';
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.arc(core.x, core.y, 5, 0, Math.PI * 2);
+          ctx.fillStyle = '#4f46e5';
+          ctx.fill();
+
+          ctx.font = 'bold 8px "Share Tech Mono"';
+          ctx.fillStyle = isDark ? '#818cf8' : '#4f46e5';
+          ctx.fillText("GALAXY NUCLEUS", core.x - 30, core.y + pulseSize + 12);
+        });
+      }
+
+      processTopologicalClusters(activeParams);
+      
+      if (isIgnited) {
+        time += p.speed;
+      }
+    }
+
+    function renderLoop() {
+      if (isRunning) {
+        drawSystemEngine();
+      }
+      requestAnimationFrame(renderLoop);
+    }
+
+    // -------------------------------------------------------------
+    // 12. Primary Button Controls Observers
+    // -------------------------------------------------------------
+    document.getElementById('btn-start').addEventListener('click', () => {
+      if (!isIgnited) {
+        isIgnited = true;
+        addLog("GENESIS ENGINE IGNITED! Actualization flow P_in activated.", "success");
+        triggerCanvasAlert(
+          "Genesis Engine Ignited — P_in Flux Active", 
+          "Động Cơ Đột Biến Khởi Chạy — Đã Bơm Năng Lượng P_in", 
+          "success"
+        );
+      } else {
+        addLog("Simulation resumed.", "system");
+        triggerCanvasAlert("Simulation Timeline Resumed", "Tiến Trình Giả Lập Tiếp Tục Chạy", "info");
+      }
+      isRunning = true;
+    });
+
+    document.getElementById('btn-pause').addEventListener('click', () => {
+      isRunning = false;
+      addLog("Simulation timeline frozen.", "warning");
+      triggerCanvasAlert("Simulation Frozen", "Tiến Trình Giả Lập Đã Tạm Dừng", "warning");
+    });
+
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      initializeSimulation();
+      triggerCanvasAlert("System Restored to Cold State", "Hệ Thống Đã Được Đưa Về Trạng Thái Lạnh", "info");
+    });
+
+    document.getElementById('btn-random').addEventListener('click', () => {
+      controls.cores.value = Math.floor(Math.random() * 4) + 1; // 1 to 4 cores
+      controls.density.value = Math.floor(Math.random() * 500) + 300;
+      controls.pin.value = (Math.random() * 0.7 + 0.3).toFixed(2); // increased to yield easy ignition
+      controls.pi.value = (Math.random() * 0.6 + 0.3).toFixed(2);
+      controls.noise.value = (Math.random() * 0.4).toFixed(2);
+      controls.twist.value = (Math.random() * 1.5 + 0.5).toFixed(1);
+      controls.conden.value = (Math.random() * 0.25 + 0.45).toFixed(2);
+      controls.entropy.value = (Math.random() * 0.4).toFixed(2);
+      controls.speed.value = (Math.random() * 0.8 + 0.6).toFixed(1);
+
+      updateValueLabels();
+      adjustParticleDensity();
+      addLog("Field geometry reconfigured with " + controls.cores.value + " cores.", "system");
+      triggerCanvasAlert(
+        `Primordial Geometry Randomized: ${controls.cores.value} Cores`, 
+        `Đã Ngẫu Nhiên Hóa Hình Học Khởi Thủy: ${controls.cores.value} Nhân`, 
+        "info"
+      );
+    });
+
+    // -------------------------------------------------------------
+    // 13. Snapshots Capture Engine
+    // -------------------------------------------------------------
+    document.getElementById('btn-snapshot').addEventListener('click', () => {
+      const link = document.createElement('a');
+      link.download = `ab-genesis-snapshot-${Date.now()}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      showToast(translations[currentLang].toastSnapshot);
+      addLog("Snapshot recorded successfully.", "success");
+    });
+
+    // -------------------------------------------------------------
+    // 14. Fullscreen Presentation Mode Mechanics (Virtual Viewport)
+    // -------------------------------------------------------------
+    const btnFullscreen = document.getElementById('btn-fullscreen');
+    const canvasContainer = document.getElementById('canvas-container');
+    const sidebarControls = document.getElementById('sidebar-controls');
+    const telemetryPanel = document.getElementById('telemetry-panel');
+    const canvasColumn = document.getElementById('canvas-column');
+    const fullscreenOverlay = document.getElementById('fullscreen-overlay');
+    const overlaySlidersTarget = document.getElementById('overlay-sliders-target');
+    const sidebarSlidersCard = sidebarControls.querySelector('div:nth-child(2)'); // Slide card container
+
+    let isFullscreenMode = false;
+
+    btnFullscreen.addEventListener('click', () => {
+      isFullscreenMode = !isFullscreenMode;
+      
+      if (isFullscreenMode) {
+        // Enter Presentation View
+        canvasContainer.classList.add('fullscreen-active');
+        sidebarControls.classList.add('hidden');
+        telemetryPanel.classList.add('hidden');
+        canvasColumn.classList.replace('lg:col-span-8', 'lg:col-span-12');
+        
+        // Clone and move the sliders into the floating Overlay Deck
+        overlaySlidersTarget.innerHTML = '';
+        overlaySlidersTarget.appendChild(sidebarSlidersCard);
+        fullscreenOverlay.classList.remove('hidden');
+        
+        btnFullscreen.innerHTML = `✕ Exit Presentation`;
+        addLog("Presentation viewport active. Controls shifted to HUD Overlay.", "system");
+        triggerCanvasAlert("Presentation View Active", "Đã Kích Hoạt Chế Độ Trình Diễn Toàn Màn Hình", "info");
+        
+        // Force quick resize calculation
+        setTimeout(resizeCanvas, 100);
+      } else {
+        exitPresentationMode();
+      }
+    });
+
+    function exitPresentationMode() {
+      isFullscreenMode = false;
+      canvasContainer.classList.remove('fullscreen-active');
+      sidebarControls.classList.remove('hidden');
+      telemetryPanel.classList.remove('hidden');
+      canvasColumn.classList.replace('lg:col-span-12', 'lg:col-span-8');
+      
+      // Move sliders card back to sidebar
+      sidebarControls.appendChild(sidebarSlidersCard);
+      fullscreenOverlay.classList.add('hidden');
+      
+      btnFullscreen.innerHTML = `📺 <span id="lbl-btn-presentation">${translations[currentLang].btnPresentation}</span>`;
+      addLog("Exited Presentation View.", "system");
+      
+      setTimeout(resizeCanvas, 100);
+    }
+
+    // Collapse HUD slider deck button inside fullscreen view
+    document.getElementById('btn-toggle-overlay-panel').addEventListener('click', () => {
+      fullscreenOverlay.classList.toggle('opacity-0');
+    });
+
+    // -------------------------------------------------------------
+    // 15. Markdown Report Builder with ASCII Benchmark Sheet
+    // -------------------------------------------------------------
+    const modalReport = document.getElementById('modal-report');
+    const reportText = document.getElementById('report-text');
+
+    function buildMarkdownReport() {
+      const p = getParams();
+      const currentStableVortices = vortexCenters.filter(v => v.age > 80).length;
+      const condensedCount = particles.filter(pt => pt.state === 'condensed').length;
+      const meanEnergy = (particles.reduce((acc, current) => acc + current.energy, 0) / particles.length * 100).toFixed(1);
+      const accretionEfficiency = ((condensedCount / p.density) * 100).toFixed(1);
+
+      // Determine clean Thermodynamic Status
+      let thermodynamicStatus = "THERMAL COLD STATE";
+      if (isIgnited) {
+        if (p.entropy > 0.65) {
+          thermodynamicStatus = "HIGH ENTROPY DISSIPATION";
+        } else if (matterClusterEmerged) {
+          thermodynamicStatus = "GALAXY SINGULARITY SATURATION";
+        } else if (currentStableVortices > 0) {
+          thermodynamicStatus = "STABLE VORTEX ACCRETION";
+        } else {
+          thermodynamicStatus = "ACTIVE TURBULENT ACCRETION";
+        }
+      }
+
+      const activeVortexTags = vortexCenters.map(v => `[${v.id}]`).join(', ') || 'None';
+
+      const reportContent = 
+`# AB GENESIS SIMULATOR REPORT
+## Primordial Lab Wave-Matter Transmutation Summary
+
+---
+
+### 1. EXPERIMENT METADATA
+* **Lead Researcher**: Phan Thành Trung (Independent Researcher, Vietnam)
+* **ORCID ID**: [0009-0000-7520-6781](https://orcid.org/0009-0000-7520-6781)
+* **Timestamp**: ${new Date().toISOString()}
+* **Assessed System State**: ${currentRawState}
+* **Simulation Topology**: ${p.cores > 1 ? `Multi-Core Co-genesis Mode (${p.cores} Cores)` : "Single Singularity"}
+* **Simulated Timeline (Frames)**: ${time.toFixed(0)}
+* **Genesis Convergence Score**: ${genesisScore}
+
+### 2. CORE INPUT VARIABLES
+* **Galaxy Cores (Π Boundaries)**: ${p.cores}
+* **Ψ Possibility Field Density**: ${p.density}
+* **P_in Actualization Flow Intensity**: ${p.pin}
+* **Π Boundary-Closure Strength**: ${p.pi}
+* **A/B Interference Noise Factor**: ${p.noise}
+* **Twist Topological Coefficient**: ${p.twist}
+* **Condensation Energy Threshold**: ${p.conden}
+* **Entropy Environmental Leakage**: ${p.entropy}
+* **Calculated Time Velocity**: ${p.speed}x
+
+### 3. QUANTUM CONVERGENCE BENCHMARK SHEET
+\`\`\`text
++----------------------------------------+------------------------------------+
+| QUANTUM CONVERGENCE PARAMETER          | RECORDED REALTIME VALUE            |
++----------------------------------------+------------------------------------+
+| Total Primordial Wave States (Ψ)       | ${p.density.toString().padEnd(34)} |
+| Active Condensed Matter Cores (C)      | ${condensedCount.toString().padEnd(34)} |
+| Stable Electron-like Vortices (V)      | ${currentStableVortices.toString().padEnd(34)} |
+| Active Vortex Identity Keys            | ${activeVortexTags.padEnd(34)} |
+| Boundary Cores Co-genesis Index (Π)    | ${p.cores.toString().padEnd(34)} |
+| Net Accretion Cohesion Efficiency      | ${(accretionEfficiency + " %").padEnd(34)} |
+| Mean Potential Field Energy Level      | ${(meanEnergy + " %").padEnd(34)} |
+| Localized Actualization Flux (P_in)    | ${(p.pin * 450).toFixed(1).padEnd(29) + " μV"} |
+| Topological Twist Coefficient          | ${p.twist.toFixed(2).padEnd(34)} |
+| Net Environmental Entropy Loss         | ${p.entropy.toFixed(2).padEnd(34)} |
+| Thermodynamic System Status            | ${thermodynamicStatus.padEnd(34)} |
++----------------------------------------+------------------------------------+
+\`\`\`
+
+### 4. EXPERIMENT INTERPRETATION
+The system operated in the **${currentRawState}** phase. 
+${
+  matterClusterEmerged 
+    ? "CONGRATULATIONS: Co-genesis Multi-Core accretion succeeded! Multiple closed galaxy-like cores of boundary Π successfully condensed and localized wave potentials against environmental entropy."
+    : currentStableVortices > 0
+    ? "PROGRESS ACHIEVED: Stable localized electron-like vortices detected. Increase Boundary Closure Π and decrease Entropy Leakage to assist total accretion into macro structures."
+    : "LOW ACCRETION PHASE: High noise and low rotational twists prevented structural condensation. Optimize input parameters to promote genesis."
+}
+
+---
+
+### WARNING / SCIENTIFIC DISCLAIMER
+Vietnamese (Bản dịch tiếng Việt):
+"Bộ giả lập này là một mô hình khái niệm lấy cảm hứng từ động lực học trường topo và các cấu trúc kiểu Skyrmion. Nó không phải bằng chứng thực nghiệm về sự hình thành electron hay vật lý Big Bang."
+
+English (Original):
+"This simulator is a conceptual toy model inspired by topological field dynamics and Skyrmion-like structures. It does not constitute empirical proof of electron formation or Big Bang physics."
+
+---
+*Report generated by AB Genesis Simulator Lab*
+`;
+      return reportContent;
+    }
+
+    document.getElementById('btn-report').addEventListener('click', () => {
+      const report = buildMarkdownReport();
+      reportText.textContent = report;
+      
+      modalReport.classList.remove('hidden');
+      setTimeout(() => {
+        modalReport.classList.add('opacity-100');
+        modalReport.classList.remove('opacity-0');
+      }, 50);
+      addLog("Laboratory report compiled successfully.", "success");
+    });
+
+    function closeReport() {
+      modalReport.classList.add('opacity-0');
+      modalReport.classList.remove('opacity-100');
+      setTimeout(() => modalReport.classList.add('hidden'), 300);
+    }
+    document.getElementById('btn-close-report').addEventListener('click', closeReport);
+
+    document.getElementById('btn-copy-report').addEventListener('click', () => {
+      const text = reportText.textContent;
+      
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed";  
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        showToast(translations[currentLang].toastCopied);
+      } catch (err) {
+        showToast("Error copying text!");
+      }
+      document.body.removeChild(textArea);
+    });
+
+    document.getElementById('btn-download-report').addEventListener('click', () => {
+      const text = reportText.textContent;
+      const blob = new Blob([text], { type: 'text/markdown' });
+      const link = document.createElement('a');
+      link.download = `ab_genesis_report_${Date.now()}.md`;
+      link.href = URL.createObjectURL(blob);
+      link.click();
+      showToast(translations[currentLang].toastDownload);
+    });
+
+    // -------------------------------------------------------------
+    // 15. Setup Default Application Values on Window Load
+    // -------------------------------------------------------------
+    window.onload = () => {
+      switchLanguage('EN'); // ENGLISH FIRST BY DEFAULT
+      updateValueLabels();
+      initializeSimulation();
+      renderLoop(); 
+      openGuide(); 
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+AB Genesis Simulator
+
+AB Genesis Simulator is a single-file conceptual simulation lab for exploring an A/B interference possibility field, actualization flow P_in, and boundary-closure operators Pi. The app visualizes how internal Pi boundary regions organize Ψ probability states into stable electron-like vortices, matter-like clusters, and galaxy-like configurations.
+
+Scientific Disclaimer: This simulator is a conceptual toy model inspired by topological field dynamics and Skyrmion-like structures. It does not constitute empirical proof of electron formation, matter formation, galaxy formation, or Big Bang physics.
+
+Author
+
+Phan Thanh Trung
+
+Independent Researcher, Vietnam
+
+ORCID: 0009-0000-7520-6781
+
+Main Features
+
+Single-file Web App: The entire simulation runs from index.html.
+
+Zero-Dependency: Runs locally in any browser with no backend or API required.
+
+2D/3D Visualization: Real-time 2D possibility field simulation paired with a 3D WebGL Genesis Chamber.
+
+Dynamic Metrics: Telemetry Matrix and Quantum Event Log for real-time tracking.
+
+Data Export: Export PNG snapshots and Markdown benchmark reports.
+
+How To Run
+
+Simply open index.html in any modern web browser. No installation, server, or build process is required.
+
+User Guide
+
+Preset Selection: Choose a simulation model from the Model Selection menu (e.g., Electron-like or Galaxy Co-emergence).
+
+Configuration: Adjust parameters in the Control Matrix (left sidebar) to fine-tune your universe.
+
+Ignition: Press Start to ignite the engine and launch the current matrix.
+
+Interaction: Click and drag directly on the canvas to stir the possibility field and seed localized vortices.
+
+Monitoring: Track convergence via the Telemetry Matrix and observe phase shifts in the Phase Timeline.
+
+Benchmark: Use the Boundary Benchmark table to verify system efficiency.
+
+Export: Use Export Snapshot for visuals or Export Report to generate a Markdown analysis of your run.
+
+Benchmark Parameters Guide
+
+The exported reports and the benchmark table utilize the following naming conventions:
+
+Benchmark Parameter
+
+Meaning
+
+Topology Mode
+
+Indicates if the system is single-boundary or multi-boundary co-genesis.
+
+Ψ Field States
+
+The number of possibility-field nodes seeded in the simulation.
+
+P_in Actualization Flux
+
+The intensity of energy injected into the system.
+
+Π Boundary Nodes
+
+The number of active internal Pi boundary regions.
+
+Electron-like Vortices
+
+Stable, rotating vortex structures formed from condensed nodes.
+
+Condensed Matter Points
+
+Field nodes that have crossed the energy condensation threshold.
+
+Matter-like Clusters
+
+Persistent structural clusters formed from condensed vortices.
+
+Galaxy-like Boundary Closures
+
+Large-scale boundary closures that meet galaxy-like convergence criteria.
+
+Accretion Cohesion Efficiency
+
+Percentage of condensed nodes relative to the initial field density.
+
+Galaxy Closure Convergence
+
+Degree to which nodes, vortices, and clusters converge into a coherent structure.
+
+Non-convergent Entropy
+
+Entropy remaining dispersed, failing to be pulled into closure.
+
+Sustained Closure Frames
+
+Number of frames for which closure conditions remained stable.
+
+Thermodynamic Status
+
+Summary status derived from entropy, vortices, clusters, and galaxy closure.
+
+License
+
+Licensed under the Apache License, Version 2.0.
+
+You may obtain a copy of the License at:
+https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, without warranties or conditions of any kind, either express or implied. See the License for the specific language governing permissions and limitations under the License.
