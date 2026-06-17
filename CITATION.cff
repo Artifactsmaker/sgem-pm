@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+
+title: SGEM-PM
+
+message: "If you use this repository, please cite it using the metadata below."
+
+type: software
+
+authors:
+  - family-names: Trung
+    given-names: Phan Thanh
+
+repository-code: https://github.com/Artifactsmaker/sgem-pm
+
+doi: 10.5281/zenodo.20737103
+
+license: Apache-2.0
+
+version: 1.0.0
+
+date-released: 2026-06-17
